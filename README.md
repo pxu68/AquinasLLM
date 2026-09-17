@@ -1,4 +1,4 @@
-# Aquinas AI (Phase 1)
+# Aquinas LLM (Phase 1)
 
 Modular monolith: PostgreSQL + pgvector, structured document ingestion, hybrid retrieval (RRF).
 

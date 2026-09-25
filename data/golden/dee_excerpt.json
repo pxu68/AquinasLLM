@@ -1,0 +1,24 @@
+{
+  "work_title": "De Ente et Essentia",
+  "work_short_code": "DEE",
+  "short_code": "DEE",
+  "edition_label": "Golden Latin (test)",
+  "language": "la",
+  "chapters": [
+    {
+      "number": 1,
+      "title": "Chapter 1",
+      "text": "Quia parvus error in initio magnus est in fine, secundum philosophum in I Caeli et Mundi, ens et essentia sunt id quod intellectus primum concipit."
+    },
+    {
+      "number": 2,
+      "title": "Chapter 2",
+      "text": "Ad huius intellectus evidentiam, sciendum est quod omnes homines natura scire desiderant."
+    },
+    {
+      "number": 3,
+      "title": "Chapter 3",
+      "text": "Res autem quae non habent intellectum, tendunt in bonum suum ex aliqua inclinatione naturali."
+    }
+  ]
+}

@@ -1,9 +1,15 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 
+from app.api.routes import ingestion_runs, passages, search, works
 from app.db.session import engine
 
 app = FastAPI(title="Aquinas AI", version="0.1.0")
+
+app.include_router(search.router)
+app.include_router(passages.router)
+app.include_router(works.router)
+app.include_router(ingestion_runs.router)
 
 
 @app.get("/health")
@@ -15,7 +21,9 @@ def health() -> dict:
             conn.execute(text("SELECT 1"))
             db_ok = True
             row = conn.execute(
-                text("SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'vector')")
+                text(
+                    "SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'vector')"
+                )
             ).scalar()
             vector_ok = bool(row)
     except Exception:

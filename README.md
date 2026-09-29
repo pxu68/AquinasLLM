@@ -40,3 +40,7 @@ uvicorn app.api.main:app --reload
 ## Phase 1 testing
 
 See [docs/PHASE1_TESTING.md](docs/PHASE1_TESTING.md) for the full checklist, pytest commands, CLI ingest examples, and API smoke tests.
+
+## Phase 0 & 1 summary
+
+See [docs/PHASE0_PHASE1_SUMMARY.md](docs/PHASE0_PHASE1_SUMMARY.md) for an overview of architecture, deliverables, APIs, and known limitations.

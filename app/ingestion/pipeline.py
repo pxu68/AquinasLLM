@@ -8,7 +8,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from app.embeddings.client import DeterministicEmbeddingClient, EmbeddingClient
+from app.embeddings.registry import build_embedding_service
 from app.embeddings.service import EmbeddingService
 from app.ingestion.retrieval_units import build_retrieval_unit_candidates
 from app.ingestion.validation import validate_structured_document
@@ -53,12 +53,12 @@ class IngestionPipeline:
     def __init__(
         self,
         session: Session,
-        embedding_client: EmbeddingClient | None = None,
+        embedding_service: EmbeddingService | None = None,
         storage_root: Path | None = None,
     ):
         self.session = session
         self.repo = CorpusRepository(session)
-        self.embedding_client = embedding_client or DeterministicEmbeddingClient()
+        self.embedding_service = embedding_service or build_embedding_service()
         self.storage_root = storage_root or Path("data/raw")
 
     def ingest(self, req: IngestRequest) -> IngestResult:
@@ -186,9 +186,8 @@ class IngestionPipeline:
             units = build_retrieval_unit_candidates(doc, local_to_uuid)
             unit_ids = self.repo.persist_retrieval_units(edition.id, units)
 
-            embed_svc = EmbeddingService(self.repo, self.embedding_client)
             texts = [u["unit_text"] for u in units]
-            embed_svc.embed_retrieval_units(unit_ids, texts)
+            self.embedding_service.embed_retrieval_units(self.repo, unit_ids, texts)
             self.repo.update_run_status(run.id, IngestionStatus.EMBEDDED)
 
             self.repo.activate_run(run.id, edition.id)

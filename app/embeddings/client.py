@@ -1,39 +1,26 @@
 from __future__ import annotations
 
-import hashlib
-import math
-from abc import ABC, abstractmethod
+from typing import Protocol, runtime_checkable
+
+from app.embeddings.types import EmbeddingResult
 
 
-class EmbeddingClient(ABC):
-    model: str
-    version: str
-    dimensions: int = 1536
+@runtime_checkable
+class EmbeddingClient(Protocol):
+    """Provider-independent embedding API (query vs document split)."""
 
-    @abstractmethod
-    def embed_texts(self, texts: list[str]) -> list[list[float]]:
-        ...
+    @property
+    def provider(self) -> str: ...
 
+    @property
+    def model(self) -> str: ...
 
-class DeterministicEmbeddingClient(EmbeddingClient):
-    """Test-friendly embeddings: stable pseudo-vectors from text hash."""
+    @property
+    def version_label(self) -> str: ...
 
-    model = "deterministic-hash"
-    version = "1.0.0"
+    @property
+    def dimension(self) -> int: ...
 
-    def embed_texts(self, texts: list[str]) -> list[list[float]]:
-        return [self._vectorize(t) for t in texts]
+    def embed_documents(self, texts: list[str]) -> EmbeddingResult: ...
 
-    def _vectorize(self, text: str) -> list[float]:
-        seed = hashlib.sha256(text.encode("utf-8")).digest()
-        out: list[float] = []
-        i = 0
-        while len(out) < self.dimensions:
-            chunk = seed[i % len(seed) : (i % len(seed)) + 4]
-            if len(chunk) < 4:
-                chunk = (chunk + seed)[:4]
-            val = int.from_bytes(chunk[:4], "big") / 2**32
-            out.append(val * 2 - 1)
-            i += 4
-        norm = math.sqrt(sum(x * x for x in out)) or 1.0
-        return [x / norm for x in out]
+    def embed_query(self, text: str) -> EmbeddingResult: ...

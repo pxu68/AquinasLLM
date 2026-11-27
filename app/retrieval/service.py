@@ -11,7 +11,8 @@ from app.api.schemas import (
     SearchResponse,
     SearchResultItem,
 )
-from app.embeddings.client import DeterministicEmbeddingClient, EmbeddingClient
+from app.embeddings.registry import build_embedding_service
+from app.embeddings.service import EmbeddingService
 from app.retrieval.fusion import reciprocal_rank_fusion
 from app.retrieval.lexical_search import lexical_search
 from app.retrieval.vector_search import vector_search
@@ -21,10 +22,10 @@ class RetrievalService:
     def __init__(
         self,
         session: Session,
-        embedding_client: EmbeddingClient | None = None,
+        embedding_service: EmbeddingService | None = None,
     ):
         self.session = session
-        self.embedding_client = embedding_client or DeterministicEmbeddingClient()
+        self.embedding_service = embedding_service or build_embedding_service()
 
     def search(
         self,
@@ -36,7 +37,7 @@ class RetrievalService:
         limit: int = 10,
         fusion: bool = True,
     ) -> SearchResponse:
-        qv = self.embedding_client.embed_texts([query])[0]
+        qv = self.embedding_service.embed_query(query)
         vector_hits = vector_search(
             self.session,
             qv,

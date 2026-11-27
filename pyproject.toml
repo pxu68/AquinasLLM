@@ -12,11 +12,14 @@ dependencies = [
     "alembic>=1.14.0",
     "psycopg[binary]>=3.2.0",
     "pydantic-settings>=2.6.0",
+    "pgvector>=0.3.6",
+    "httpx>=0.28.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
     "httpx>=0.28.0",
 ]
 
@@ -30,3 +33,5 @@ packages = ["app"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

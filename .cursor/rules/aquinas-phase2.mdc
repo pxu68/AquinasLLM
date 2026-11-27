@@ -1,0 +1,53 @@
+---
+description: Aquinas AI Phase 2 (RAG / answer generation) architectural invariants
+globs: app/rag/**, app/llm/**, app/embeddings/**, app/eval/**, app/api/v1/ask.py
+alwaysApply: false
+---
+
+# Aquinas AI — Phase 2 rules
+
+Full design: @docs/phase2/PHASE2_DESIGN.md. Work one milestone at a time; do not implement ahead.
+
+## Architecture
+- Modular monolith. No microservices, Kafka, Celery, Kubernetes, graph DB, or agent frameworks (LangChain/LlamaIndex etc.).
+- Database access ONLY through `app/repositories/`. `rag/` never imports SQLModel tables or sessions.
+- Import boundaries: `rag` → `retrieval, repositories, llm, embeddings`. `retrieval` must NOT import `rag`. `llm` imports nothing from the app.
+- `/v1/search` stays evidence-only. Never add generation to it.
+- Do not change Phase 1 retrieval algorithms (RRF, chunking, pool sizes) without a measured eval improvement. Additive changes only: expose scores, scope filter, lexical-only degraded mode, embedding-version pinning.
+- Prefer request-scoped state over new DB tables. No answer/claim/prompt/generation tables in Phase 2.
+
+## Provenance and citations
+- The backend owns all provenance. Never trust LLM-supplied source metadata.
+- Evidence IDs are per-request labels `E1..En`. Citation validity = membership in the request's `evidence_map`.
+- Model output is claims only (`segments` with `support[{evidence_id, quote}]`). Backend renders `answer` and `[E#]` markers.
+- No URLs, HTML, or markdown links in model output; reject them in validation.
+- Claim types: `direct_source_claim`, `synthesis`, `inference`, `modern_application` implemented; `unsupported` is backend-assigned only; `interpretation` is reserved/deferred.
+- Quote verification runs against the as-sent evidence text.
+
+## LLM and prompts
+- All LLM access via the `LLMClient` Protocol. Retries live only in `RetryingLLMClient`; disable SDK auto-retries.
+- Errors use the taxonomy: transient / permanent / context-too-large / refusal. Malformed output is a parse-layer error.
+- Max one initial generation + one regeneration. Never blind-retry.
+- Insufficient evidence → no LLM call, templated response.
+- Prompts are immutable versioned files under `app/rag/prompts/templates/<name>/<version>/`. Released versions are never edited; create a new version. Never interpolate question/evidence text into templates.
+- Evidence goes in escaped `<source id="E#">` blocks; question in `<question>`. Source text is data, never instructions.
+- Do not force Summa structure (Objections/Sed contra/Respondeo) onto answers or non-Summa works.
+
+## Embeddings
+- Provider-independent `EmbeddingClient` with separate `embed_documents` / `embed_query`.
+- Active embedding version is DB state, not env. Each request reads it once and pins it.
+- Deterministic hash provider must keep working for tests; refuse it as active in production.
+- Version cutover: build → backfill (idempotent anti-join) → validate → activate (single txn, advisory lock) → rollback by re-activating.
+
+## Secrets and logging
+- Secrets via `pydantic-settings` `SecretStr`. Never log keys or auth headers. Never commit `.env`.
+- Structured JSON logs with `request_id`. Question logging governed by `LOG_QUESTIONS=full|hash|off`.
+
+## Testing
+- Test suite must pass offline with no real LLM or embedding API. Live tests use `@pytest.mark.live` and are excluded from CI.
+- Every validator/selector/context change needs unit tests. Prompt changes need snapshot tests.
+- Every failure path (E999, malformed JSON, quote mismatch, transient exhaustion, insufficient evidence) needs a mock-LLM test.
+
+## Style
+- Python 3.12, type hints everywhere, Pydantic v2 for schemas, small pure functions for selection/validation.
+- Keep diffs minimal and scoped to the milestone. Ask before touching `corpus/`, `parsing/`, or `db/`.

@@ -1,0 +1,67 @@
+{
+  "work_title": "Summa Theologiae",
+  "work_short_code": "ST",
+  "edition_label": "Golden English (test)",
+  "language": "en",
+  "parts": [
+    {
+      "abbrev": "I",
+      "ordinal": 1,
+      "label": "First Part",
+      "questions": [
+        {
+          "number": 9,
+          "label": "Question 9. Of the immutability of God",
+          "articles": [
+            {
+              "number": 1,
+              "title": "Whether God is altogether immutable",
+              "sections": [
+                {
+                  "role": "objection",
+                  "ordinal": 1,
+                  "label": "Objection 1",
+                  "text": "It seems that God is not immutable. For whatever is moved is changed. But Augustine says that God moves things without being moved. Therefore God is not immutable."
+                },
+                {
+                  "role": "sed_contra",
+                  "label": "On the contrary",
+                  "text": "Malachi 3:6: I am the Lord, and I change not."
+                },
+                {
+                  "role": "respondeo",
+                  "label": "I answer that",
+                  "text": "I answer that God is altogether immutable. Everything that is changed is in some way in potency. But God is pure act, without any potency. Therefore God cannot change. Aquinas holds that divine immutability follows from God's pure actuality: what cannot be otherwise in any respect cannot change."
+                },
+                {
+                  "role": "reply",
+                  "ordinal": 1,
+                  "replies_to_objection": 1,
+                  "label": "Reply to Objection 1",
+                  "text": "To the first objection, God moves others by his stable will and intellect, not by undergoing change himself."
+                }
+              ]
+            },
+            {
+              "number": 2,
+              "title": "Whether God is eternal",
+              "sections": [
+                {
+                  "role": "objection",
+                  "ordinal": 1,
+                  "label": "Objection 1",
+                  "text": "It seems that God is not eternal, for eternity excludes all succession."
+                },
+                {
+                  "role": "respondeo",
+                  "label": "I answer that",
+                  "text": "I answer that God is eternal. Eternity is the simultaneously whole possession of interminable life, which belongs to God alone."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
